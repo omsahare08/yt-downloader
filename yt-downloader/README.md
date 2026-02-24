@@ -28,7 +28,7 @@ yt-downloader/
 ### Step 1 — Install yt-dlp
 
 ```powershell
-pip install yt-dlp[default]  ✅
+pip install yt-dlp[default]  
 ```
 
 > `yt-dlp[default]` includes all extras like the JS runtime, crypto, and audio support.
@@ -36,7 +36,7 @@ pip install yt-dlp[default]  ✅
 You also need **ffmpeg** to merge video + audio into a single MP4:
 
 ```powershell
-winget install ffmpeg  ✅
+winget install ffmpeg  
 ```
 
 After installing ffmpeg, **restart PowerShell** so it's recognized.
@@ -58,9 +58,8 @@ Open `server.js` and update the `YTDLP` path at the top to match your system.
 ### Step 3 — Start the local server
 
 ```powershell
-cd yt-downloader-server ✅  
-eg. cd "C:\Users\Om Sahare\Downloads\yt-downloader\yt-downloader-server"
-node server.js ✅
+cd yt-downloader-server 
+node server.js 
 ```
 
 You should see:
