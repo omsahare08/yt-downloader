@@ -1,0 +1,12 @@
+{
+  "name": "yt-downloader-server",
+  "version": "1.0.0",
+  "description": "Local server for the YT Downloader Chrome extension",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YT Downloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #222;
+      --accent: #ff2d2d;
+      --accent2: #ff6b35;
+      --text: #f0f0f0;
+      --muted: #666;
+      --success: #00e676;
+      --warning: #ffea00;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 360px;
+      min-height: 480px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,45,45,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(255,45,45,0.4);
+    }
+
+    .header-text h1 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      line-height: 1;
+    }
+
+    .header-text span {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .server-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+
+    .status-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-dot.offline { background: var(--accent); }
+
+    /* Main content */
+    .content { padding: 20px; }
+
+    /* Not on YouTube */
+    .not-youtube {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .not-youtube .icon { font-size: 40px; margin-bottom: 12px; }
+    .not-youtube h2 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .not-youtube p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* Video info */
+    .video-info {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .thumbnail-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .thumbnail-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumbnail-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+    }
+
+    .duration-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+    }
+
+    .video-meta {
+      padding: 12px 14px;
+    }
+
+    .video-title {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-channel {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Format selector */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .format-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .format-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      color: var(--text);
+    }
+
+    .format-btn:hover {
+      border-color: #444;
+      background: #1a1a1a;
+    }
+
+    .format-btn.active {
+      border-color: var(--accent);
+      background: rgba(255, 45, 45, 0.1);
+    }
+
+    .format-btn .res {
+      font-size: 14px;
+      font-weight: 800;
+      display: block;
+      line-height: 1;
+    }
+
+    .format-btn .ext {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      margin-top: 3px;
+      display: block;
+    }
+
+    .format-btn.active .ext { color: var(--accent2); }
+
+    /* Audio option */
+    .audio-option {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: all 0.15s;
+    }
+
+    .audio-option:hover { border-color: #444; }
+    .audio-option.active { border-color: var(--accent); background: rgba(255,45,45,0.1); }
+
+    .audio-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .audio-left .icon { font-size: 18px; }
+    .audio-left .label { font-size: 13px; font-weight: 700; }
+    .audio-left .sub { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+    .check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      transition: all 0.15s;
+    }
+
+    .active .check { border-color: var(--accent); background: var(--accent); }
+
+    /* Download button */
+    .download-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(255,45,45,0.3);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 25px rgba(255,45,45,0.45);
+    }
+
+    .download-btn:active { transform: translateY(0); }
+    .download-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Progress */
+    .progress-wrap {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .progress-wrap.visible { display: block; }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .progress-fill.indeterminate {
+      width: 40%;
+      animation: shimmer 1.2s infinite ease-in-out;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-200%); }
+      100% { transform: translateX(350%); }
+    }
+
+    .progress-text {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+    }
+
+    /* Error/success messages */
+    .message {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      display: none;
+    }
+
+    .message.visible { display: block; }
+    .message.error { background: rgba(255,45,45,0.1); border: 1px solid rgba(255,45,45,0.3); color: #ff6b6b; }
+    .message.success { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); color: var(--success); }
+
+    /* Server setup hint */
+    .server-hint {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 234, 0, 0.06);
+      border: 1px solid rgba(255,234,0,0.2);
+      border-radius: 8px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--warning);
+      line-height: 1.6;
+      display: none;
+    }
+
+    .server-hint.visible { display: block; }
+    .server-hint strong { display: block; margin-bottom: 4px; }
+
+    /* Loading state */
+    .loading-info {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+    }
+
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">▼</div>
+  <div class="header-text">
+    <h1>YT Downloader</h1>
+    <span>by yt-dlp + Node.js</span>
+  </div>
+  <div class="server-status">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">checking</span>
+  </div>
+</div>
+
+<div class="content" id="mainContent">
+  <div class="loading-info" id="loadingState">
+    <div class="spinner"></div>
+    Detecting page...
+  </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
