@@ -3,10 +3,7 @@
 // Can be extended to inject a floating download button on the page
 
 (function() {
-  // Optional: inject a small download button below the video player
-  // Uncomment the lines below to enable an in-page button
-
-  
+ 
   function injectButton() {
     if (document.getElementById('yt-dl-btn')) return;
 
